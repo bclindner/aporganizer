@@ -7,4 +7,4 @@ WORKDIR /app
 COPY . .
 RUN pip install .
 
-CMD ["aporganizer"]
+ENTRYPOINT ["aporganizer"]
