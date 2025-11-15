@@ -10,6 +10,7 @@ from discord import app_commands
 
 import aporganizer as apo
 
+
 @dataclass
 class APOrganizerConfig:
     intents: discord.Intents = discord.Intents.default()
@@ -25,15 +26,15 @@ class APOrganizerConfig:
             config.db_file = args.dbfile
         return config
 
-class APOrganizerClient(discord.Client):
 
+class APOrganizerClient(discord.Client):
     user: discord.ClientUser
 
     def __init__(self, intents: discord.Intents):
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
         self.config = APOrganizerConfig()
-        self.organizer = None # to be configured by setup_hook
+        self.organizer = None  # to be configured by setup_hook
 
     async def setup_hook(self):
         guild = None
@@ -43,28 +44,34 @@ class APOrganizerClient(discord.Client):
         await self.tree.sync(guild=guild)
         self.organizer = apo.APOrganizer(self.config.db_file)
 
+
 intents = discord.Intents.default()
 client = APOrganizerClient(intents=intents)
+
 
 @client.tree.command(description="Pings the server.")
 async def ping(interaction: discord.Interaction):
     await interaction.response.send_message(f"{interaction.user.mention} Pong!")
 
+
 @client.tree.command(description="Adds a YAML to the rando.")
 @app_commands.describe(yaml="YAML file to add to the rando.")
 async def addyaml(interaction: discord.Interaction, yaml: discord.Attachment):
     try:
-        apo_yaml = client.organizer.add_yaml(str(interaction.user.id), await yaml.read())
-        await interaction.response.send_message(
-            f"YAML successfully added for slot \"{apo_yaml.slot_name}\"."
+        apo_yaml = client.organizer.add_yaml(
+            str(interaction.user.id), await yaml.read()
         )
-    except apo.InvalidYamlException as e:
+        await interaction.response.send_message(
+            f'YAML successfully added for slot "{apo_yaml.slot_name}".'
+        )
+    except apo.InvalidYamlException:
         await interaction.response.send_message(
             "Failed - YAML is not valid (either bad YAML or `name` was not set).",
-            ephemeral=True
+            ephemeral=True,
         )
     except apo.AlreadyExistsException as e:
         await interaction.response.send_message(f"Failed - {e}.", ephemeral=True)
+
 
 @client.tree.command(description="Remove a YAML from the rando.")
 @app_commands.describe(slot="Name of the slot to remove.")
@@ -74,32 +81,37 @@ async def removeyaml(interaction: discord.Interaction, slot: str):
         await interaction.response.send_message(
             f"YAML for {slot} successfully removed."
         )
-    except apo.AlreadyExistsException as e:
+    except apo.AlreadyExistsException:
         await interaction.response.send_message(
-            f"Failed - could not find a YAML with the slot {slot}.",
-            ephemeral=True
+            f"Failed - could not find a YAML with the slot {slot}.", ephemeral=True
         )
+
 
 @client.tree.command(description="Adds an APWorld to the rando.")
-@app_commands.describe(game_name="Name of the game.", apworld="APWorld file to add to the rando.")
-async def addapworld(interaction: discord.Interaction, game_name: str, apworld: discord.Attachment):
+@app_commands.describe(
+    game_name="Name of the game.", apworld="APWorld file to add to the rando."
+)
+async def addapworld(
+    interaction: discord.Interaction, game_name: str, apworld: discord.Attachment
+):
     try:
         client.organizer.add_apworld(
-            str(interaction.user.id),
-            game_name, await
-            apworld.read()
+            str(interaction.user.id), game_name, await apworld.read()
         )
         await interaction.response.send_message(
-            f"YAML successfully added for \"{game_name}\"."
+            f'YAML successfully added for "{game_name}".'
         )
-    except apo.AlreadyExistsException as e:
+    except apo.AlreadyExistsException:
         await interaction.response.send_message(
-            f"Failed - APWorld for {game_name} already exists." +
-            "\nUse `/deleteapworld` to delete it if necessary.",
-            ephemeral=True
+            f"Failed - APWorld for {game_name} already exists."
+            + "\nUse `/deleteapworld` to delete it if necessary.",
+            ephemeral=True,
         )
 
-@client.tree.command(description="Exports all the rando files as a .zip, and clears the bot.")
+
+@client.tree.command(
+    description="Exports all the rando files as a .zip, and clears the bot."
+)
 async def export(interaction: discord.Interaction):
     # create temp zip file
     with tempfile.TemporaryFile() as temp_fd:
@@ -120,11 +132,11 @@ async def export(interaction: discord.Interaction):
         temp_fd.flush()
         temp_fd.seek(0)
         client.organizer.clear()
-        date = date.now()
         await interaction.response.send_message(
-                "Exported and cleared. Enjoy your randomizer!",
-                file=discord.File(temp_fd, "rando.zip")
+            "Exported and cleared. Enjoy your randomizer!",
+            file=discord.File(temp_fd, "rando.zip"),
         )
+
 
 @client.tree.command(description="Describe all the YAMLs/APWorlds in the bot so far.")
 async def status(interaction: discord.Interaction):
@@ -141,10 +153,14 @@ async def status(interaction: discord.Interaction):
         response += f"\n* `{apworld.game_name}` ({user.mention})"
     await interaction.response.send_message(response)
 
-@client.tree.command(description="Clear the YAMLs and APWorlds from the bot (i.e. to start a new randomizer).")
+
+@client.tree.command(
+    description="Clear the YAMLs and APWorlds from the bot (i.e. to start a new randomizer)."
+)
 async def clear(interaction: discord.Interaction):
     client.organizer.clear()
     await interaction.response.send_message("YAMLs and APWorlds cleared.")
+
 
 def run(config):
     if "BOT_TOKEN" not in os.environ:

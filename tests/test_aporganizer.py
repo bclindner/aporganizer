@@ -9,25 +9,33 @@ TEST_SLOT_NAME = "Testing"
 TEST_GAME = "Bingly 3"
 TEST_APWORLD = b"asdf"
 
+
 @pytest.fixture()
 def organizer():
     return aporganizer.APOrganizer(":memory:")
+
 
 def test_read_slot_name():
     slot_name = aporganizer.read_slot_name(TEST_YAML)
     assert slot_name == TEST_SLOT_NAME
 
-@pytest.mark.parametrize('data', [
-    b"!*$(^&%(#*", # non-yaml data
-    b"mame: Testing" # "name" key not in yaml
-])
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        b"!*$(^&%(#*",  # non-yaml data
+        b"mame: Testing",  # "name" key not in yaml
+    ],
+)
 def test_read_slot_name_bad(data):
     with pytest.raises(aporganizer.InvalidYamlException):
         aporganizer.read_slot_name(data)
 
+
 def test_add_yaml(organizer):
     yaml = organizer.add_yaml(TEST_CREATOR, TEST_YAML)
     assert yaml.slot_name == TEST_SLOT_NAME
+
 
 def test_add_yaml_overwrite(organizer):
     organizer.add_yaml(TEST_CREATOR, TEST_YAML)
@@ -36,13 +44,16 @@ def test_add_yaml_overwrite(organizer):
     assert len(yamls) == 1
     assert yamls[0].data == TEST_YAML_2
 
+
 def test_add_yaml_overwrite_bad(organizer):
     organizer.add_yaml(TEST_CREATOR, TEST_YAML)
     with pytest.raises(aporganizer.AlreadyExistsException):
         organizer.add_yaml(TEST_CREATOR_2, TEST_YAML)
 
+
 def test_get_yamls_none(organizer):
     assert len(list(organizer.get_yamls())) == 0
+
 
 def test_get_yamls_one(organizer):
     yaml = organizer.add_yaml(TEST_CREATOR, TEST_YAML)
@@ -53,18 +64,21 @@ def test_get_yamls_one(organizer):
     assert yaml.creator_id == yamls[0].creator_id
     assert yaml.data == yamls[0].data
 
+
 def test_delete_yaml(organizer):
     yaml = organizer.add_yaml(TEST_CREATOR, TEST_YAML)
     organizer.delete_yaml(yaml.slot_name)
     assert len(list(organizer.get_yamls())) == 0
 
+
 def test_delete_yaml_nonexistent(organizer):
     with pytest.raises(aporganizer.NotExistsException):
         organizer.delete_yaml("slot")
 
+
 def test_add_apworld(organizer):
     apworld = organizer.add_apworld(TEST_CREATOR, TEST_GAME, TEST_APWORLD)
-    assert apworld.apworld_id != None
+    assert apworld.apworld_id is not None
     assert apworld.creator_id == TEST_CREATOR
     assert apworld.game_name == TEST_GAME
     assert apworld.data == TEST_APWORLD
@@ -73,14 +87,16 @@ def test_add_apworld(organizer):
 def test_get_apworlds_none(organizer):
     assert len(list(organizer.get_apworlds())) == 0
 
+
 def test_get_apworlds_one(organizer):
     apworld = organizer.add_apworld(TEST_CREATOR, TEST_GAME, TEST_APWORLD)
     apworlds = list(organizer.get_apworlds())
     assert len(apworlds) == 1
     assert apworld.apworld_id == apworlds[0].apworld_id
-    assert apworld.creator_id == apworlds[0].creator_id 
-    assert apworld.game_name == apworlds[0].game_name 
+    assert apworld.creator_id == apworlds[0].creator_id
+    assert apworld.game_name == apworlds[0].game_name
     assert apworld.data == apworlds[0].data
+
 
 def test_clear(organizer):
     organizer.add_yaml(TEST_CREATOR, TEST_YAML)
