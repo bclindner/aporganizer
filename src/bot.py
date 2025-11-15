@@ -33,6 +33,7 @@ class APOrganizerClient(discord.Client):
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
         self.config = APOrganizerConfig()
+        self.organizer = None # to be configured by setup_hook
 
     async def setup_hook(self):
         guild = None
@@ -40,6 +41,7 @@ class APOrganizerClient(discord.Client):
             guild = discord.Object(id=self.config.guild)
         self.tree.copy_global_to(guild=guild)
         await self.tree.sync(guild=guild)
+        self.organizer = apo.APOrganizer(self.config.db_file)
 
 intents = discord.Intents.default()
 client = APOrganizerClient(intents=intents)
