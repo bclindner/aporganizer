@@ -1,0 +1,1 @@
+"""Organizer for Archipelago randomizers."""

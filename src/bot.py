@@ -1,25 +1,45 @@
+from typing import Self
+import os
 import tempfile
-from zipfile import ZipFile # honestly in disbelief this is a standard library package, wow
+import argparse
+from dataclasses import dataclass
+from zipfile import ZipFile
 
 import discord
 from discord import app_commands
 
 import aporganizer as apo
 
-GUILD = discord.Object(id=480923944057044992)
+@dataclass
+class APOrganizerConfig:
+    intents: discord.Intents = discord.Intents.default()
+    guild: str | None = None
+    db_file: str = ":memory:"
+
+    @classmethod
+    def from_args(cls, args: argparse.Namespace) -> Self:
+        config = cls()
+        if args.guild is not None:
+            config.guild = args.guild
+        if args.dbfile is not None:
+            config.db_file = args.dbfile
+        return config
 
 class APOrganizerClient(discord.Client):
 
     user: discord.ClientUser
 
-    def __init__(self, *, intents: discord.Intents):
+    def __init__(self, intents: discord.Intents):
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
-        self.organizer = apo.APOrganizer("aporganizer.db")
+        self.config = APOrganizerConfig()
 
     async def setup_hook(self):
-        self.tree.copy_global_to(guild=GUILD)
-        await self.tree.sync(guild=GUILD)
+        guild = None
+        if self.config.guild is not None:
+            guild = discord.Object(id=self.config.guild)
+        self.tree.copy_global_to(guild=guild)
+        await self.tree.sync(guild=guild)
 
 intents = discord.Intents.default()
 client = APOrganizerClient(intents=intents)
@@ -124,5 +144,9 @@ async def clear(interaction: discord.Interaction):
     client.organizer.clear()
     await interaction.response.send_message("YAMLs and APWorlds cleared.")
 
-def run(token):
+def run(config):
+    if "BOT_TOKEN" not in os.environ:
+        raise Exception("No BOT_TOKEN environment variable set.")
+    token = os.environ["BOT_TOKEN"]
+    client.config = config
     client.run(token)

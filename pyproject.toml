@@ -9,3 +9,9 @@ dependencies = [
     "pytest>=9.0.1",
     "pyyaml>=6.0.3",
 ]
+[project.scripts]
+aporganizer = "cli:run"
+[tool.pytest.ini_options]
+pythonpath = [
+	"src"
+]
