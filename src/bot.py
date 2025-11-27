@@ -9,6 +9,7 @@ import discord
 from discord import app_commands
 
 import aporganizer as apo
+from util import slugify
 
 
 @dataclass
@@ -118,13 +119,11 @@ async def export(interaction: discord.Interaction):
         with ZipFile(temp_fd, "w") as zip:
             # list APWorlds and save each by game name
             for apworld in client.organizer.get_apworlds():
-                # TODO FIXME UNSAFE
-                filename = "apworlds/" + apworld.game_name + ".apworld"
+                filename = "apworlds/" + slugify(apworld.game_name) + ".apworld"
                 with zip.open(filename, "w") as apworld_fd:
                     apworld_fd.write(apworld.data)
             for yaml in client.organizer.get_yamls():
-                # TODO FIXME UNSAFE
-                filename = "yamls/" + yaml.slot_name + ".yaml"
+                filename = "yamls/" + slugify(yaml.slot_name) + ".yaml"
                 with zip.open(filename, "w") as yaml_fd:
                     yaml_fd.write(yaml.data)
         # discord.py will try to read from wherever the current fd head is so
