@@ -100,7 +100,7 @@ async def addapworld(
             str(interaction.user.id), game_name, await apworld.read()
         )
         await interaction.response.send_message(
-            f'YAML successfully added for "{game_name}".'
+            f'APWorld successfully added for "{game_name}".'
         )
     except apo.AlreadyExistsException:
         await interaction.response.send_message(
