@@ -3,6 +3,8 @@ from dataclasses import dataclass
 import sqlite3
 import yaml
 
+YAML_SIZE_LIMIT = 524288 # 512 KB
+APWORLD_SIZE_LIMIT = 1048576 # 1 MB
 
 @dataclass
 class Yaml:
@@ -26,16 +28,18 @@ def read_slot_name(data: bytes) -> str:
     except Exception as e:
         raise InvalidYamlException(e)
 
+class FileTooBigException(Exception):
+    pass
 
-class InvalidYamlException(BaseException):
+class InvalidYamlException(Exception):
     pass
 
 
-class AlreadyExistsException(BaseException):
+class AlreadyExistsException(Exception):
     pass
 
 
-class NotExistsException(BaseException):
+class NotExistsException(Exception):
     pass
 
 
@@ -66,6 +70,9 @@ class APOrganizer:
 
     def add_yaml(self, creator_id: str, data: bytes):
         """Add a YAML to the database."""
+        data_size = len(data)
+        if data_size > YAML_SIZE_LIMIT:
+            raise FileTooBigException(f"YAML provided is too large ({data_size} bytes; maximum {YAML_SIZE_LIMIT})")
         slot_name = read_slot_name(data)
         cursor = self.db.cursor()
         # check if creator/slot has already been set. if so, delete it
@@ -117,6 +124,9 @@ class APOrganizer:
             raise NotExistsException()
 
     def add_apworld(self, creator_id: str, game_name: str, data: bytes):
+        data_size = len(data)
+        if data_size > APWORLD_SIZE_LIMIT:
+            raise FileTooBigException(f"APWorld provided is too large ({data_size} bytes; maximum {YAML_SIZE_LIMIT})")
         cursor = self.db.cursor()
         try:
             cursor.execute(
