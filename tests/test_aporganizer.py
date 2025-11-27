@@ -51,6 +51,12 @@ def test_add_yaml_overwrite_bad(organizer):
         organizer.add_yaml(TEST_CREATOR_2, TEST_YAML)
 
 
+def test_add_yaml_toobig(organizer):
+    huge_yaml = b" " * 600000  # weirdly large yaml
+    with pytest.raises(aporganizer.FileTooBigException):
+        organizer.add_yaml(TEST_CREATOR_2, huge_yaml)
+
+
 def test_get_yamls_none(organizer):
     assert len(list(organizer.get_yamls())) == 0
 
@@ -82,6 +88,12 @@ def test_add_apworld(organizer):
     assert apworld.creator_id == TEST_CREATOR
     assert apworld.game_name == TEST_GAME
     assert apworld.data == TEST_APWORLD
+
+
+def test_add_apworld_toobig(organizer):
+    huge_apworld = b" " * 1100000  # weirdly large yaml
+    with pytest.raises(aporganizer.FileTooBigException):
+        organizer.add_apworld(TEST_CREATOR, TEST_GAME, huge_apworld)
 
 
 def test_get_apworlds_none(organizer):
