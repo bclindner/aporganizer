@@ -142,12 +142,12 @@ async def status(interaction: discord.Interaction):
     response = ""
     # add yamls
     response += "**YAMLs:**"
-    for yaml in client.organizer.get_yamls():
+    for yaml in client.organizer.get_yamls(get_data=False):
         user = await client.fetch_user(int(yaml.creator_id))
         response += f"\n* `{yaml.slot_name}` ({user.mention})"
     # add apworlds
     response += "\n**APWorlds:**"
-    for apworld in client.organizer.get_apworlds():
+    for apworld in client.organizer.get_apworlds(get_data=False):
         user = await client.fetch_user(int(apworld.creator_id))
         response += f"\n* `{apworld.game_name}` ({user.mention})"
     await interaction.response.send_message(response)

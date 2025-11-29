@@ -71,6 +71,12 @@ def test_get_yamls_one(organizer):
     assert yaml.data == yamls[0].data
 
 
+def test_get_yamls_one_nodata(organizer):
+    organizer.add_yaml(TEST_CREATOR, TEST_YAML)
+    yamls = list(organizer.get_yamls(get_data=False))
+    assert yamls[0].data == None
+
+
 def test_delete_yaml(organizer):
     yaml = organizer.add_yaml(TEST_CREATOR, TEST_YAML)
     organizer.delete_yaml(yaml.slot_name)
@@ -108,6 +114,12 @@ def test_get_apworlds_one(organizer):
     assert apworld.creator_id == apworlds[0].creator_id
     assert apworld.game_name == apworlds[0].game_name
     assert apworld.data == apworlds[0].data
+
+
+def test_get_yamls_one_nodata(organizer):
+    organizer.add_apworld(TEST_CREATOR, TEST_GAME, TEST_APWORLD)
+    apworlds = list(organizer.get_apworlds(get_data=False))
+    assert apworlds[0].data == None
 
 
 def test_clear(organizer):

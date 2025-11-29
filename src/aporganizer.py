@@ -108,11 +108,14 @@ class APOrganizer:
             return None
         return result[0]
 
-    def get_yamls(self):
+    def get_yamls(self, get_data: bool = True):
+        if get_data:
+            query = "SELECT yaml_id, creator_id, slot_name, data FROM yaml"
+        else:
+            query = "SELECT yaml_id, creator_id, slot_name, NULL as data FROM yaml"
+
         cursor = self.db.cursor()
-        for row in cursor.execute(
-            "SELECT yaml_id, creator_id, slot_name, data FROM yaml"
-        ):
+        for row in cursor.execute(query):
             yaml_id, creator_id, slot_name, data = row
             yield Yaml(
                 yaml_id=yaml_id,
@@ -150,11 +153,15 @@ class APOrganizer:
             data=data,
         )
 
-    def get_apworlds(self):
+    def get_apworlds(self, get_data: bool = True):
+        if get_data:
+            query = "SELECT apworld_id, creator_id, game_name, data FROM apworld"
+        else:
+            query = (
+                "SELECT apworld_id, creator_id, game_name, NULL as data FROM apworld"
+            )
         cursor = self.db.cursor()
-        for row in cursor.execute(
-            "SELECT apworld_id, creator_id, game_name, data FROM apworld"
-        ):
+        for row in cursor.execute(query):
             yield APWorld(
                 apworld_id=row[0],
                 creator_id=row[1],
