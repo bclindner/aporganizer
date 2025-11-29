@@ -154,7 +154,7 @@ async def export(interaction: discord.Interaction):
         temp_fd.flush()
         temp_fd.seek(0)
         client.organizer.clear()
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "Exported and cleared. Enjoy your randomizer!",
             file=discord.File(temp_fd, "rando.zip"),
         )
