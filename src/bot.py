@@ -109,11 +109,25 @@ async def addapworld(
             ephemeral=True,
         )
 
+@client.tree.command(description="Remove an APWorld from the rando.")
+@app_commands.describe(slot="Name of the game to remove.")
+async def removeapworld(interaction: discord.Interaction, game: str):
+    try:
+        client.organizer.delete_apworld(game)
+        await interaction.response.send_message(
+            f"APWorld YAML for {game} successfully removed."
+        )
+    except apo.AlreadyExistsException:
+        await interaction.response.send_message(
+            f"Failed - could not find an APWorld for {game}.", ephemeral=True
+        )
+
 
 @client.tree.command(
     description="Exports all the rando files as a .zip, and clears the bot."
 )
 async def export(interaction: discord.Interaction):
+    await interaction.response.send_message("Randomizer submissions are closed - exporting now...")
     # create temp zip file
     with tempfile.TemporaryFile() as temp_fd:
         with ZipFile(temp_fd, "w") as zip:
