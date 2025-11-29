@@ -157,7 +157,9 @@ class APOrganizer:
         if get_data:
             query = "SELECT apworld_id, creator_id, game_name, data FROM apworld"
         else:
-            query = "SELECT apworld_id, creator_id, game_name, NULL as data FROM apworld"
+            query = (
+                "SELECT apworld_id, creator_id, game_name, NULL as data FROM apworld"
+            )
         cursor = self.db.cursor()
         for row in cursor.execute(query):
             yield APWorld(
