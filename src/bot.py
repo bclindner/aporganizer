@@ -164,6 +164,10 @@ async def export(interaction: discord.Interaction):
     description="Describe all the YAMLs/APWorlds in the bot so far."
 )
 async def status(interaction: discord.Interaction):
+    interaction_response = await interaction.response.send_message("Fetching status...")
+    # sanity check...
+    if interaction_response.message_id is None:
+        raise Exception("Message ID does not exist - this shouldn't be possible!")
     response = ""
     # add yamls
     response += "**YAMLs:**"
@@ -175,7 +179,7 @@ async def status(interaction: discord.Interaction):
     for apworld in client.organizer.get_apworlds(get_data=False):
         user = await client.fetch_user(int(apworld.creator_id))
         response += f"\n* `{apworld.game_name}` ({user.mention})"
-    await interaction.response.send_message(response)
+    await interaction.followup.edit_message(interaction_response.message_id, content=response)
 
 
 @client.tree.command(
