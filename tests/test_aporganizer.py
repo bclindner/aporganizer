@@ -70,6 +70,11 @@ def test_get_yamls_one(organizer):
     assert yaml.creator_id == yamls[0].creator_id
     assert yaml.data == yamls[0].data
 
+def test_get_yamls_one_nodata(organizer):
+    organizer.add_yaml(TEST_CREATOR, TEST_YAML)
+    yamls = list(organizer.get_yamls(get_data=False))
+    assert yamls[0].data == None
+
 
 def test_delete_yaml(organizer):
     yaml = organizer.add_yaml(TEST_CREATOR, TEST_YAML)
