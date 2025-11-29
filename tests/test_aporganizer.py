@@ -116,6 +116,12 @@ def test_get_apworlds_one(organizer):
     assert apworld.data == apworlds[0].data
 
 
+def test_get_yamls_one_nodata(organizer):
+    organizer.add_apworld(TEST_CREATOR, TEST_GAME, TEST_APWORLD)
+    apworlds = list(organizer.get_apworlds(get_data=False))
+    assert apworlds[0].data == None
+
+
 def test_clear(organizer):
     organizer.add_yaml(TEST_CREATOR, TEST_YAML)
     organizer.add_apworld(TEST_CREATOR, TEST_GAME, TEST_APWORLD)
