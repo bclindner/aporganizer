@@ -1,4 +1,5 @@
 import pytest
+
 import aporganizer
 
 TEST_CREATOR = "0123456789"

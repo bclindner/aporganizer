@@ -1,6 +1,7 @@
-from typing import Any
-from dataclasses import dataclass
 import sqlite3
+from dataclasses import dataclass
+from typing import Any
+
 import yaml
 
 YAML_SIZE_LIMIT = 524288  # 512 KB
@@ -83,14 +84,18 @@ class APOrganizer:
         # check if creator/slot has already been set. if so, delete it
         existing_yaml_id = self._yaml_exists(cursor, creator_id, slot_name)
         if existing_yaml_id is not None:
-            cursor.execute("DELETE FROM yaml WHERE yaml_id = ?", (existing_yaml_id,))
+            cursor.execute(
+                "DELETE FROM yaml WHERE yaml_id = ?", (existing_yaml_id,)
+            )
         try:
             cursor.execute(
                 "INSERT INTO yaml (creator_id, slot_name, data) VALUES (?,?,?)",
                 (creator_id, slot_name, data),
             )
         except sqlite3.IntegrityError:
-            raise AlreadyExistsException(f"Slot name {slot_name} already exists")
+            raise AlreadyExistsException(
+                f"Slot name {slot_name} already exists"
+            )
         self.db.commit()
         return Yaml(
             yaml_id=cursor.lastrowid,
@@ -99,7 +104,9 @@ class APOrganizer:
             data=data,
         )
 
-    def _yaml_exists(self, cursor: sqlite3.Cursor, creator_id: str, slot_name: str):
+    def _yaml_exists(
+        self, cursor: sqlite3.Cursor, creator_id: str, slot_name: str
+    ):
         result = cursor.execute(
             "SELECT yaml_id FROM yaml WHERE creator_id = ? AND slot_name = ?",
             (creator_id, slot_name),
@@ -112,7 +119,9 @@ class APOrganizer:
         if get_data:
             query = "SELECT yaml_id, creator_id, slot_name, data FROM yaml"
         else:
-            query = "SELECT yaml_id, creator_id, slot_name, NULL as data FROM yaml"
+            query = (
+                "SELECT yaml_id, creator_id, slot_name, NULL as data FROM yaml"
+            )
 
         cursor = self.db.cursor()
         for row in cursor.execute(query):
@@ -144,7 +153,9 @@ class APOrganizer:
                 (creator_id, game_name, data),
             )
         except sqlite3.IntegrityError:
-            raise AlreadyExistsException(f"APWorld for {game_name} already submitted")
+            raise AlreadyExistsException(
+                f"APWorld for {game_name} already submitted"
+            )
         self.db.commit()
         return APWorld(
             apworld_id=cursor.lastrowid,
@@ -155,11 +166,11 @@ class APOrganizer:
 
     def get_apworlds(self, get_data: bool = True):
         if get_data:
-            query = "SELECT apworld_id, creator_id, game_name, data FROM apworld"
-        else:
             query = (
-                "SELECT apworld_id, creator_id, game_name, NULL as data FROM apworld"
+                "SELECT apworld_id, creator_id, game_name, data FROM apworld"
             )
+        else:
+            query = "SELECT apworld_id, creator_id, game_name, NULL as data FROM apworld"
         cursor = self.db.cursor()
         for row in cursor.execute(query):
             yield APWorld(
