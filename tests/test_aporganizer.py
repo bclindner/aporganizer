@@ -98,7 +98,7 @@ def test_add_apworld(organizer):
 
 
 def test_add_apworld_toobig(organizer):
-    huge_apworld = b" " * 1100000  # weirdly large yaml
+    huge_apworld = b" " * 21000000  # weirdly large apworld
     with pytest.raises(aporganizer.FileTooBigException):
         organizer.add_apworld(TEST_CREATOR, TEST_GAME, huge_apworld)
 
