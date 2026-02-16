@@ -5,7 +5,7 @@ from typing import Any
 import yaml
 
 YAML_SIZE_LIMIT = 524288  # 512 KB
-APWORLD_SIZE_LIMIT = 1048576  # 1 MB
+APWORLD_SIZE_LIMIT = 20971520 # 20 MB
 
 
 @dataclass
