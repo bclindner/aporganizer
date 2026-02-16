@@ -94,24 +94,23 @@ async def removeyaml(interaction: discord.Interaction, slot: str):
 
 @client.tree.command(description="Adds an APWorld to the rando.")
 @app_commands.describe(
-    game_name="Name of the game.", apworld="APWorld file to add to the rando."
+    apworld="APWorld file to add to the rando."
 )
 async def addapworld(
     interaction: discord.Interaction,
-    game_name: str,
     apworld: discord.Attachment,
 ):
     try:
         client.organizer.add_apworld(
-            str(interaction.user.id), game_name, await apworld.read()
+            str(interaction.user.id), apworld.filename, await apworld.read()
         )
         await interaction.response.send_message(
-            f'APWorld successfully added for "{game_name}".'
+            f'APWorld "{apworld.filename}" successfully added.'
         )
     except apo.AlreadyExistsException:
         await interaction.response.send_message(
-            f"Failed - APWorld for {game_name} already exists."
-            + "\nUse `/deleteapworld` to delete it if necessary.",
+            f"Failed - APWorld named {apworld.filename} already exists."
+            "\nUse `/deleteapworld` to delete it if necessary.",
             ephemeral=True,
         )
 
@@ -142,7 +141,7 @@ async def export(interaction: discord.Interaction):
         with ZipFile(temp_fd, "w") as zip:
             # list APWorlds and save each by game name
             for apworld in client.organizer.get_apworlds():
-                filename = "apworlds/" + slugify(apworld.game_name) + ".apworld"
+                filename = "apworlds/" + apworld.game_name + ".apworld"
                 with zip.open(filename, "w") as apworld_fd:
                     apworld_fd.write(apworld.data)
             for yaml in client.organizer.get_yamls():
